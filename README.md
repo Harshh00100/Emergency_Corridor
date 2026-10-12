@@ -41,6 +41,21 @@ Open the local URL printed by Vite. Public services can be slow or rate limited.
 
 The `.env` copy is optional: validated public defaults work without it. On Windows PowerShell, use `Copy-Item .env.example .env` instead of `cp`. After the first installation, `npm ci` uses the supplied lockfile for repeatable installs.
 
+## Streamlit version
+
+A native Python dashboard is available in `streamlit_app.py`. It supports coordinate-based route planning and comparison, weighted route recommendations, simulated road events, nearby hospital search, and an interactive map. It uses public OSRM and OpenStreetMap services; route estimates, congestion, and events are for demonstration only.
+
+Install Python dependencies and start the app from the project folder:
+
+```powershell
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+py -m pip install -r requirements.txt
+py -m streamlit run streamlit_app.py
+```
+
+To publish with Streamlit Community Cloud, connect the GitHub repository, set `streamlit_app.py` as the app file, and keep `requirements.txt` in the repository root. The existing React/Vite app remains available separately through `npm run dev`.
+
 ## Five-minute demonstration
 
 1. Click the map to set pickup. Choose a hospital or click again to set destination. A keyboard coordinate form is available under Dispatch setup.
