@@ -1,0 +1,31 @@
+:root {
+  --background: #0f1824;
+  --background-deep: #0a111b;
+  --panel: #152333;
+  --panel-strong: #1b3041;
+  --text: #eff4f7;
+  --muted: #a3b3be;
+  --border: #2a3d4c;
+  --border-strong: #476071;
+  --emergency: #e4606a;
+  --emergency-dark: #c64754;
+  --recommended: #48c09e;
+  --recommended-light: rgba(72, 192, 158, 0.14);
+  --caution: #e3ad53;
+  --caution-light: rgba(227, 173, 83, 0.14);
+  --alternative: #79a0d2;
+  --surface-dark: #0b1420;
+  --text-on-dark: #f7fbfd;
+  --border-on-dark: #3b5363;
+  --muted-on-dark: #a3b3be;
+  --surface-dark-hover: #1d3445;
+  --caution-text: #f1c878;
+  --caution-hover: rgba(227, 173, 83, 0.22);
+  --error-border: rgba(228, 96, 106, 0.56);
+  --error-surface: rgba(228, 96, 106, 0.13);
+  --modal-backdrop: rgba(3, 8, 14, 0.8);
+  --glass-highlight: rgba(255, 255, 255, 0.055);
+  --glass-shadow: 0 10px 28px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.18);
+  --glass-blur: blur(12px);
+  --font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
