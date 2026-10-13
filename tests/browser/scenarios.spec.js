@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 
+const routeAlternatives = (page) => page.locator('.route-panel > .route-card-list > .route-card');
+
 const setupOfflineDemo = async (page) => {
   await page.goto('/');
   await page.getByRole('checkbox', { name: 'Offline demo mode' }).check();
@@ -9,7 +11,7 @@ const setupOfflineDemo = async (page) => {
   await page.getByRole('spinbutton', { name: 'Latitude', exact: true }).fill('28.5672');
   await page.getByRole('spinbutton', { name: 'Longitude', exact: true }).fill('77.2100');
   await page.getByRole('button', { name: 'Set endpoint', exact: true }).click();
-  await expect(page.locator('.route-card')).toHaveCount(3);
+  await expect(routeAlternatives(page)).toHaveCount(3);
 };
 
 test('save, import/export, shared links, replay and refresh recovery', async ({ page }) => {
@@ -40,14 +42,14 @@ test('save, import/export, shared links, replay and refresh recovery', async ({ 
   const download = await downloadEvent;
   const exportedPath = await download.path();
   await page.getByRole('button', { name: 'New', exact: true }).click();
-  await expect(page.locator('.route-card')).toHaveCount(0);
+  await expect(routeAlternatives(page)).toHaveCount(0);
   await page.getByRole('button', { name: 'Restore', exact: true }).click();
   await expect(page.getByLabel('Scenario name', { exact: true })).toHaveValue('Delhi teaching run');
-  await expect(page.locator('.route-card')).toHaveCount(3);
+  await expect(routeAlternatives(page)).toHaveCount(3);
   await page.getByRole('button', { name: 'New', exact: true }).click();
   await page.getByLabel('Import scenario file', { exact: true }).setInputFiles(exportedPath);
   await expect(page.getByLabel('Scenario name', { exact: true })).toHaveValue('Delhi teaching run');
-  await expect(page.locator('.route-card')).toHaveCount(3);
+  await expect(routeAlternatives(page)).toHaveCount(3);
 
   await page.getByRole('button', { name: 'Copy share link', exact: true }).click();
   const shared = await page.getByLabel('Scenario share link', { exact: true }).inputValue();
@@ -55,7 +57,7 @@ test('save, import/export, shared links, replay and refresh recovery', async ({ 
   await page.getByRole('button', { name: 'New', exact: true }).click();
   await page.goto(shared);
   await expect(page.getByLabel('Scenario name', { exact: true })).toHaveValue('Delhi teaching run');
-  await expect(page.locator('.route-card')).toHaveCount(3);
+  await expect(routeAlternatives(page)).toHaveCount(3);
   // pagehide flushes the exact latest state even before the periodic autosave.
   await page.reload();
   await expect(page.getByLabel('Scenario name', { exact: true })).toHaveValue('Delhi teaching run');
@@ -70,7 +72,7 @@ test('offline reload uses precached application and saved routes', async ({ page
   await context.setOffline(true);
   await page.reload();
   await expect(page.getByRole('heading', { name: 'Emergency Corridor', exact: true })).toBeVisible();
-  await expect(page.locator('.route-card')).toHaveCount(3);
+  await expect(routeAlternatives(page)).toHaveCount(3);
   await expect(page.getByText('Offline · demo data available', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Start movement', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Pause', exact: true })).toBeEnabled();
