@@ -17,6 +17,7 @@ export const initialState = {
   trafficSignals: { items: [], status: 'idle', error: null, source: 'none', fallbackReason: null },
   signalClearance: { status: 'idle', signalId: null, signalName: null, requestId: null, requestedAt: null, receiptId: null, error: null },
   routing: { routes: [], selectedRouteId: null, status: 'idle', error: null, source: 'none', fallbackReason: null },
+  rerouting: { routes: [], origin: null, incidentId: null, status: 'idle', error: null, source: 'none', fallbackReason: null },
   incidents: [],
   simulation: { status: 'idle', routeId: null, progressMeters: 0, speedKph: DEFAULT_SIMULATION_SPEED },
   notifications: [],
@@ -67,7 +68,7 @@ const reduceAppState = (state, action) => {
     case TYPES.SET_DESTINATION: {
       if (action.payload !== null && !isValidCoordinate(action.payload)) return notifyError(state, 'Select a valid map coordinate.');
       const key = action.type === TYPES.SET_PICKUP ? 'pickup' : 'destination';
-      return record({ ...state, locations: { ...state.locations, [key]: action.payload }, hospitals: key === 'pickup' ? { ...initialState.hospitals, status: action.payload ? 'loading' : 'idle' } : state.hospitals, trafficSignals: key === 'pickup' ? { ...initialState.trafficSignals, status: action.payload ? 'loading' : 'idle' } : state.trafficSignals, routing: { ...initialState.routing }, signalClearance: key === 'pickup' ? initialState.signalClearance : state.signalClearance, simulation: resetSimulation(state) }, `${key === 'pickup' ? 'Pickup' : 'Destination'} updated`, action.payload?.label || 'Endpoint cleared', action);
+      return record({ ...state, locations: { ...state.locations, [key]: action.payload }, hospitals: key === 'pickup' ? { ...initialState.hospitals, status: action.payload ? 'loading' : 'idle' } : state.hospitals, trafficSignals: key === 'pickup' ? { ...initialState.trafficSignals, status: action.payload ? 'loading' : 'idle' } : state.trafficSignals, routing: { ...initialState.routing }, rerouting: { ...initialState.rerouting }, signalClearance: key === 'pickup' ? initialState.signalClearance : state.signalClearance, simulation: resetSimulation(state) }, `${key === 'pickup' ? 'Pickup' : 'Destination'} updated`, action.payload?.label || 'Endpoint cleared', action);
     }
     case TYPES.SELECT_ROUTE:
       if (!state.routing.routes.some((route) => route.id === action.payload)) return state;
@@ -83,6 +84,17 @@ const reduceAppState = (state, action) => {
       return { ...state, routing: { ...initialState.routing, status: 'error', error: action.payload }, simulation: resetSimulation(state) };
     case TYPES.ROUTES_CLEARED:
       return { ...state, routing: { ...initialState.routing }, simulation: resetSimulation(state) };
+    case TYPES.REROUTE_REQUESTED:
+      return { ...state, rerouting: { ...initialState.rerouting, ...action.payload, status: 'loading' } };
+    case TYPES.REROUTE_RECEIVED: {
+      const routes = action.payload.routes.filter(isValidRoute);
+      if (!routes.length) return { ...state, rerouting: { ...initialState.rerouting, ...action.payload, status: 'error', error: 'No alternate routes were available from the reported blockage.' } };
+      return record({ ...state, rerouting: { ...initialState.rerouting, ...action.payload, routes, status: 'success' } }, 'Blockage alternates loaded', `${routes.length} alternate route(s) from the reported blockage`, action);
+    }
+    case TYPES.REROUTE_FAILED:
+      return { ...state, rerouting: { ...initialState.rerouting, ...action.payload, status: 'error', error: action.payload.error } };
+    case TYPES.REROUTE_CLEARED:
+      return state.rerouting.status === 'idle' && state.rerouting.routes.length === 0 ? state : { ...state, rerouting: { ...initialState.rerouting } };
     case TYPES.HOSPITALS_REQUESTED:
       return { ...state, hospitals: { ...state.hospitals, status: 'loading', error: null } };
     case TYPES.HOSPITALS_RECEIVED:

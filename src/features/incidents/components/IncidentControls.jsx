@@ -32,7 +32,7 @@ export const IncidentControls = ({ onRequestPlacement, onPlaceAtCoordinates, inc
         </form>
       </details>}
       <button type="button" className="button button-secondary button-wide demo-event-button" disabled={!canBlock} onClick={onBlockRecommended}>Simulate blockage on recommended corridor</button>
-      <p className="disclosure-text">The shortcut places a high-severity blockage with a 250 m radius at the route midpoint. Penalties affect nearby candidates, but do not guarantee an obstacle-free route.</p>
+      <p className="disclosure-text">The shortcut places a high-severity blockage with a 250 m radius at the route midpoint. Nearby candidates are re-ranked and fresh alternate routes are requested from the reported blockage.</p>
       {incidents.length > 0 && <div className="active-events"><div className="subheading">Active simulated events</div>{incidents.map((incident) => <div className="active-event" key={incident.id}><span><strong>{incident.type}</strong><small>{incident.severity} severity, {incident.radiusMeters} m impact radius</small></span><button type="button" className="text-button" onClick={() => onRemoveIncident(incident.id)}>Remove</button></div>)}</div>}
     </section>
   );

@@ -49,6 +49,19 @@ describe('asynchronous routing', () => {
     expect(result.current.state.routing.routes).toHaveLength(0);
   });
 
+  it('requests alternate corridors from a reported blockage to the destination', async () => {
+    getRoutes.mockResolvedValueOnce(TEST_ROUTES);
+    const { result } = renderHook(() => ({ ...useAppState(), ...useRoutePlanning() }), { wrapper: AppStateProvider });
+    const origin = { lat: 28.59, lng: 77.209 };
+    const destination = { lat: 28.5672, lng: 77.21 };
+    await act(async () => {
+      await result.current.requestReroute({ origin, destination, incidentId: 'incident-1' });
+    });
+    expect(getRoutes).toHaveBeenCalledWith(expect.objectContaining({ origin, destination, alternatives: true, signal: expect.any(AbortSignal) }));
+    expect(result.current.state.rerouting).toMatchObject({ status: 'success', origin, incidentId: 'incident-1', source: 'osrm' });
+    expect(result.current.state.rerouting.routes.map((route) => route.id)).toEqual(['reroute-incident-1-r1', 'reroute-incident-1-r2']);
+  });
+
   it('renders explicit loading and retryable error states', () => {
     const retry = vi.fn();
     const view = render(<RouteComparisonPanel routing={{ status: 'loading' }} routes={[]} onRetry={retry} />);

@@ -62,7 +62,7 @@ To publish with Streamlit Community Cloud, connect the GitHub repository, set `s
 2. Wait for routes. Check the source disclosure before describing the result. OSRM can return just one candidate.
 3. Compare baseline and adjusted times, route distance, congestion, and normalized cost. Select a route, then use **Start movement**.
 4. Use **Pause** and **Resume**. Change speed to see the remaining-time estimate respond.
-5. Use **Simulate blockage on recommended corridor**, or place an event directly on the map. Review the decision in the history. Shared road segments may affect several routes, so a switch is not guaranteed.
+5. Use **Simulate blockage on recommended corridor**, or place an event directly on the map. Review the decision in the history. Shared road segments may affect several routes, so a switch is not guaranteed. A blockage also requests and displays fresh alternate routes from the reported location to the selected destination.
 6. If a different route is recommended, choose **Switch to recommendation**. The confirmation explains that switching restarts at pickup and pauses. This prototype does not compute a connector from the current ambulance position.
 7. Use **Reset** and review the Design Thinking project panel.
 
@@ -134,7 +134,7 @@ Normalization is `(value - min) / (max - min)` over the available candidates. An
 
 The adjusted travel estimate is `baselineSeconds * (1 + 0.75 * congestion + incidentPenalty)`. Route distance is never inflated: it remains the source distance. Congestion is a deterministic, index-based demonstration value unless supplied by sample routes. Event penalties depend on the shortest point-to-segment distance inside the configured radius, with a proximity multiplier `max(0.15, 1 - distance/radius)`. Congestion-event penalties are capped at 0.8, incident penalties at 0.9, and total congestion at 0.95. Weights and severity penalties live in `src/constants/scoring.js`.
 
-The route with the lowest cost is ranked first. A blockage is a soft penalty in this model, not a road-network closure constraint. Candidates are reranked locally; the app does not make OSRM avoid closed segments. This is a transparent heuristic, not a trained AI model or live traffic prediction.
+The route with the lowest cost is ranked first. A blockage is a soft penalty in the original candidate set, not a road-network closure constraint. Candidates are reranked locally, while a separate OSRM request supplies alternate geometry beginning at the reported blockage. This is a transparent heuristic, not a trained AI model or live traffic prediction.
 
 ## Troubleshooting public API failures
 

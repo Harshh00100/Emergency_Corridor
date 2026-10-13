@@ -28,7 +28,7 @@
 4. The service validates and transforms the response. On a permitted failure, the hook uses clearly labelled demo geometry.
 5. `scoreRoutes` derives scored candidates from routes and current simulated incidents.
 6. The map and route panels receive the same derived candidates and recommendation.
-7. A map-placed event is stored in the reducer. The score is recalculated, a notification explains the change or stability, and the simulation panel can offer a route switch.
+7. A map-placed event is stored in the reducer. The score is recalculated, a notification explains the change or stability, and the simulation panel can offer a route switch. A blockage also starts a separate, cancellable route request from the blockage coordinate to the destination; those alternates are rendered on the map and in the route panel without replacing the pickup-to-destination candidates.
 8. `useAmbulanceSimulation` owns the interval lifecycle and dispatches progress ticks. The reducer remains the source of truth for simulation status and progress.
 
 ## State management
@@ -39,7 +39,7 @@ The provider timestamps actions at the boundary. The reducer is deterministic an
 
 The simulation ticks at 250 ms using elapsed monotonic time, capped at one second per tick after background tab suspension. Interpolation uses cached cumulative geodesic segment distances. Remaining time uses the configured speed, independently of scoring ETA. Switching is explicitly confirmed, resets to pickup, and pauses. Interval cleanup occurs on pause, reset, route change, and unmount. Memoized scoring and geometry avoid recomputation on movement ticks; the small prototype still uses one Context subscription boundary.
 
-Asynchronous loading, success, error, and fallback source states are explicit. Route and hospital hooks use cancellation and request identity checks so older responses cannot overwrite a newer selection.
+Asynchronous loading, success, error, and fallback source states are explicit. Primary route, blockage-reroute, and hospital hooks use cancellation and request identity checks so older responses cannot overwrite a newer selection.
 
 ## Separation of business logic and UI
 

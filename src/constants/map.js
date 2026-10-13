@@ -10,5 +10,6 @@ export const LOCATION_MODES = Object.freeze({
 export const ROUTE_COLORS = Object.freeze({
   recommended: 'var(--recommended)',
   alternative: 'var(--alternative)',
-  selected: 'var(--emergency)'
+  selected: 'var(--emergency)',
+  reroute: 'var(--caution)'
 });

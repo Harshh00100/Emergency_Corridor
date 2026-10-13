@@ -30,9 +30,11 @@ describe('complete dispatch workflow', () => {
     await user.click(screen.getByRole('button', { name: 'Pause' }));
     expect(screen.getByRole('button', { name: 'Resume' })).toBeEnabled();
     await user.click(screen.getByRole('button', { name: 'Resume' }));
-    await user.click(screen.getByRole('button', { name: 'Simulate blockage on recommended corridor' }));
-    expect(await screen.findByRole('button', { name: /01 Corridor 2 Recommended/ })).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Switch to recommendation' }));
+     await user.click(screen.getByRole('button', { name: 'Simulate blockage on recommended corridor' }));
+     expect(await screen.findByRole('button', { name: /01 Corridor 2 Recommended/ })).toBeInTheDocument();
+     expect(await screen.findByRole('region', { name: 'Alternate routes from reported blockage' })).toBeInTheDocument();
+     expect(screen.getByText('Alternate 1 · Corridor 1')).toBeInTheDocument();
+     await user.click(screen.getByRole('button', { name: 'Switch to recommendation' }));
     const confirmation = screen.getByRole('dialog', { name: 'Switch simulation corridor?' });
     await user.click(within(confirmation).getByRole('button', { name: 'Switch and restart at pickup' }));
     expect(screen.getByRole('button', { name: 'Resume' })).toBeEnabled();

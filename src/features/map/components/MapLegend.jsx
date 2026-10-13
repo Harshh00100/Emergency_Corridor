@@ -5,6 +5,7 @@ export const MapLegend = ({ showHospitalRadius }) => (
     <span><i className="legend-swatch legend-recommended" /> Recommended</span>
     <span><i className="legend-swatch" /> Alternative</span>
     <span><i className="legend-swatch legend-selected" /> Selected alternative</span>
+    <span><i className="legend-swatch legend-reroute" /> Blockage alternate</span>
     <span><i className="legend-hospital">H</i> Hospital</span>
     <span><i className="legend-signal" /> Traffic signal</span>
     {showHospitalRadius && <span><i className="legend-swatch legend-radius" /> 2 km pickup radius</span>}

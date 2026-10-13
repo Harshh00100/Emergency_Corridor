@@ -20,6 +20,7 @@ const destinationIcon = makeMarkerIcon('marker-destination', 'Destination');
 const hospitalIcon = makeMarkerIcon('marker-hospital', 'Hospital');
 const signalIcon = makeMarkerIcon('marker-signal', 'Traffic signal');
 const nearestSignalIcon = makeMarkerIcon('marker-signal marker-signal-nearest', 'Nearest traffic signal');
+const rerouteIcon = makeMarkerIcon('marker-reroute', 'Reroute origin');
 
 const ClickCapture = ({ onMapClick }) => {
   useMapEvents({ click: onMapClick });
@@ -47,8 +48,11 @@ export const MapView = ({
   nearestSignalId,
   clearance,
   routes,
+  rerouteRoutes = [],
   viewportRoutes,
   recommendedRouteId,
+  rerouteRecommendedRouteId,
+  rerouteOrigin,
   selectedRouteId,
   incidents,
   ambulancePosition,
@@ -98,8 +102,24 @@ export const MapView = ({
             <Popup><strong>{route.label || `Route ${route.rank}`}</strong><br />{readOnly ? 'Recorded corridor' : 'Click to select this route for simulation.'}</Popup>
           </Polyline>
         ))}
+        {rerouteRoutes.map((route) => (
+          <Polyline
+            key={route.id}
+            bubblingMouseEvents={false}
+            positions={route.geometry.coordinates.map(([lng, lat]) => [lat, lng])}
+            pathOptions={{
+              color: ROUTE_COLORS.reroute,
+              weight: route.id === rerouteRecommendedRouteId ? 6 : 4,
+              opacity: route.id === rerouteRecommendedRouteId ? 0.98 : 0.78,
+              dashArray: route.id === rerouteRecommendedRouteId ? '12 6' : '6 8'
+            }}
+          >
+            <Popup><strong>{route.label}</strong><br />Alternate route from the reported blockage.</Popup>
+          </Polyline>
+        ))}
         {pickup && <Marker position={[pickup.lat, pickup.lng]} icon={pickupIcon}><Popup><strong>Pickup</strong><br />{pickup.label || 'Selected map location'}</Popup></Marker>}
         {destination && <Marker position={[destination.lat, destination.lng]} icon={destinationIcon}><Popup><strong>Destination</strong><br />{destination.label || 'Selected destination'}</Popup></Marker>}
+        {rerouteOrigin && <Marker position={[rerouteOrigin.lat, rerouteOrigin.lng]} icon={rerouteIcon}><Popup><strong>Reported blockage</strong><br />Alternate routes start here.</Popup></Marker>}
         {hospitals.map((hospital) => (
           <Marker key={hospital.id} position={[hospital.lat, hospital.lng]} icon={hospitalIcon} title={hospital.name}>
             <Popup><strong>{hospital.name}</strong><br />{hospital.address}<br />{hospital.source === 'demo' ? 'Sample location' : 'OpenStreetMap record'}{!readOnly && <><br /><button type="button" className="button button-secondary" onClick={() => onHospitalSelect(hospital)}>Set hospital destination</button></>}</Popup>

@@ -25,7 +25,7 @@ export const useDashboard = () => {
     setHospitalMode('nearby');
     previousDecision.current = null;
   }, [state.workspaceRevision]);
-  const { requestRoutes } = useRoutePlanning();
+  const { requestRoutes, requestReroute, clearReroute } = useRoutePlanning();
   const { hospitals, reloadHospitals } = useHospitals(state.locations.pickup || env.defaultMap);
   const trafficSignalData = useTrafficSignals(state.locations.pickup);
   const mapHospitals = useMemo(() => hospitals.status !== 'success' ? [] : hospitalMode === 'nearby' ? getHospitalsWithinRadius(hospitals.items, state.locations.pickup) : hospitals.items, [hospitals, hospitalMode, state.locations.pickup]);
@@ -35,6 +35,12 @@ export const useDashboard = () => {
   const selectedRoute = scoredRoutes.find((route) => route.id === activeRouteId) || recommendedRoute;
   const simulation = useAmbulanceSimulation(selectedRoute);
   const explanation = useMemo(() => explainRouteDecision(recommendedRoute, scoredRoutes, state.incidents), [recommendedRoute, scoredRoutes, state.incidents]);
+  const latestBlockage = useMemo(() => [...state.incidents].reverse().find((incident) => incident.type === 'blockage') || null, [state.incidents]);
+  const rerouteRoutes = useMemo(() => {
+    const rerouteIncidents = state.incidents.filter((incident) => incident.id !== state.rerouting.incidentId);
+    return scoreRoutes(state.rerouting.routes, rerouteIncidents);
+  }, [state.incidents, state.rerouting.incidentId, state.rerouting.routes]);
+  const rerouteRecommendedRoute = rerouteRoutes[0] || null;
 
   useEffect(() => {
     const previous = previousDecision.current;
@@ -48,6 +54,16 @@ export const useDashboard = () => {
     }
     previousDecision.current = { incidents: state.incidents, routes: state.routing.routes, routeId: recommendedRoute?.id };
   }, [dispatch, explanation, recommendedRoute, state.incidents, state.routing.routes]);
+
+  useEffect(() => {
+    if (!latestBlockage || !state.locations.destination) {
+      clearReroute();
+      return;
+    }
+    requestReroute({ origin: latestBlockage, destination: state.locations.destination, incidentId: latestBlockage.id });
+  }, [clearReroute, latestBlockage, latestBlockage?.id, latestBlockage?.lat, latestBlockage?.lng, requestReroute,
+    state.locations.destination,
+    state.locations.destination?.lat, state.locations.destination?.lng, state.locations.pickup?.lat, state.locations.pickup?.lng]);
 
   useEffect(() => {
     if (hospitalMode === 'nearby' && state.locations.pickup && hospitals.status === 'success' && getHospitalsWithinRadius(hospitals.items, state.locations.pickup).length === 0) setHospitalMode('manual');
@@ -81,6 +97,7 @@ export const useDashboard = () => {
   return {
     addIncident,
     state, hospitals, scoredRoutes, recommendedRoute, selectedRoute, simulation, explanation,
+    rerouteRoutes, rerouteRecommendedRoute,
     trafficSignals: trafficSignalData.trafficSignals, nearestSignal: trafficSignalData.nearestSignal,
     selectionMode, pendingRouteId, hospitalMode, setHospitalMode, mapHospitals,
     switchSuggested: Boolean(state.simulation.status !== 'idle' && selectedRoute?.id !== recommendedRoute?.id && selectedRoute?.affectedIncidents.length),

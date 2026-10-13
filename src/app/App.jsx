@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { AppHeader } from '../components/layout/AppHeader';
 import { NotificationStack } from '../components/feedback/NotificationStack';
@@ -24,7 +24,8 @@ const pageFromLocation = () => PROJECT_PAGES.includes(window.location.hash.slice
 
 export const App = () => {
   const dashboard = useDashboard();
-  const { state, hospitals, trafficSignals, nearestSignal, scoredRoutes, recommendedRoute, selectedRoute, simulation } = dashboard;
+  const { state, hospitals, trafficSignals, nearestSignal, scoredRoutes, recommendedRoute, selectedRoute, simulation, rerouteRoutes, rerouteRecommendedRoute } = dashboard;
+  const viewportRoutes = useMemo(() => [...state.routing.routes, ...state.rerouting.routes], [state.routing.routes, state.rerouting.routes]);
   const [projectInfoOpen, setProjectInfoOpen] = useState(false);
   const [page, setPage] = useState(pageFromLocation);
   useEffect(() => {
@@ -61,7 +62,8 @@ export const App = () => {
               offlineMode={state.offlineMode}
               pickup={state.locations.pickup} destination={state.locations.destination}
               hospitals={dashboard.mapHospitals} showHospitalRadius={dashboard.hospitalMode === 'nearby'} trafficSignals={trafficSignals.items} nearestSignalId={nearestSignal?.id} clearance={state.signalClearance}
-              routes={scoredRoutes} viewportRoutes={state.routing.routes} recommendedRouteId={recommendedRoute?.id}
+              routes={scoredRoutes} rerouteRoutes={rerouteRoutes} viewportRoutes={viewportRoutes} recommendedRouteId={recommendedRoute?.id}
+              rerouteOrigin={state.rerouting.origin} rerouteRecommendedRouteId={rerouteRecommendedRoute?.id}
               selectedRouteId={selectedRoute?.id} incidents={state.incidents}
               ambulancePosition={simulation.position} simulationStatus={state.simulation.status}
               placementMode={dashboard.selectionMode} onMapClick={dashboard.onMapClick}
@@ -81,7 +83,8 @@ export const App = () => {
               onClearDestination={() => dashboard.setEndpoint('destination', null)} />
             <HospitalSelector hospitals={hospitals} pickup={state.locations.pickup} selectionMode={dashboard.hospitalMode} onModeChange={dashboard.setHospitalMode} selectedHospitalId={state.locations.destination?.hospitalId} selectedDestination={state.locations.destination} onSelect={dashboard.selectHospital} onRetry={dashboard.reloadHospitals} />
             <TrafficSignalControls pickup={state.locations.pickup} signals={trafficSignals} nearestSignal={nearestSignal} clearance={state.signalClearance} onRequestClearance={dashboard.requestSignalClearance} onRetry={dashboard.reloadTrafficSignals} />
-            <RouteComparisonPanel routing={state.routing} routes={scoredRoutes} recommendedRouteId={recommendedRoute?.id} selectedRouteId={selectedRoute?.id} onSelect={dashboard.selectRoute} onRetry={dashboard.retryRoutes} />
+            <RouteComparisonPanel routing={state.routing} routes={scoredRoutes} recommendedRouteId={recommendedRoute?.id} selectedRouteId={selectedRoute?.id} onSelect={dashboard.selectRoute} onRetry={dashboard.retryRoutes}
+               rerouting={state.rerouting} rerouteRoutes={rerouteRoutes} rerouteRecommendedRouteId={rerouteRecommendedRoute?.id} />
             <RecommendedRoutePanel route={recommendedRoute} explanation={dashboard.explanation} source={state.routing.source} onSelect={dashboard.selectRoute} />
             <IncidentControls incidents={state.incidents} onRequestPlacement={dashboard.requestPlacement} onPlaceAtCoordinates={dashboard.addIncident} onRemoveIncident={dashboard.removeIncident} onBlockRecommended={dashboard.blockRecommended} canBlock={Boolean(recommendedRoute)} />
             <SimulationControls simulation={state.simulation} progress={simulation.progress}

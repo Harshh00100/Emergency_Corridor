@@ -32,6 +32,15 @@ describe('application reducer', () => {
     expect(next.history[0].label).toContain('blockage');
   });
 
+  it('stores alternate routes with the blockage origin without replacing the main corridors', () => {
+    const origin = { lat: 28.59, lng: 77.209 };
+    const requested = appReducer(readyState, { type: 'REROUTE_REQUESTED', payload: { origin, incidentId: 'i1' } });
+    const next = appReducer(requested, { type: 'REROUTE_RECEIVED', payload: { routes: [TEST_ROUTES[1]], source: 'osrm', origin, incidentId: 'i1' } });
+    expect(next.routing.routes).toHaveLength(2);
+    expect(next.rerouting).toMatchObject({ status: 'success', origin, incidentId: 'i1', source: 'osrm' });
+    expect(next.rerouting.routes).toHaveLength(1);
+  });
+
   it('rejects missing routes, invalid incident input, and invalid speed', () => {
     expect(appReducer(initialState, { type: 'START_SIMULATION', payload: { routeId: 'missing' } }).simulation.status).toBe('idle');
     expect(appReducer(initialState, { type: 'ADD_INCIDENT', payload: {} }).incidents).toHaveLength(0);

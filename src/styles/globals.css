@@ -273,6 +273,8 @@ h3 { margin-bottom: 0; font-size: 0.96rem; }
 .route-card:hover { border-color: var(--alternative); background: var(--surface-dark); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.14); }
 .route-card-recommended { border-color: rgba(72, 192, 158, 0.65); background: rgba(72, 192, 158, 0.08); }
 .route-card-selected { outline: 2px solid var(--emergency); outline-offset: -3px; box-shadow: 0 0 0 2px rgba(228, 96, 106, 0.1); }
+.route-card-static { cursor: default; }
+.route-card-static:hover { border-color: rgba(227, 173, 83, 0.58); background: rgba(227, 173, 83, 0.07); box-shadow: none; }
 .route-card-topline, .route-card-footer, .route-metrics, .simulation-route-row, .progress-label { display: flex; align-items: center; }
 .route-card-topline, .route-card-footer { justify-content: space-between; gap: 8px; }
 .route-number { color: var(--muted); font-size: 0.7rem; font-weight: 750; }
@@ -304,6 +306,9 @@ h3 { margin-bottom: 0; font-size: 0.96rem; }
 .active-event strong, .active-event small { display: block; }
 .active-event strong { font-size: 0.77rem; text-transform: capitalize; }
 .active-event small { color: var(--muted); font-size: 0.68rem; }
+.reroute-section { margin-top: 15px; padding-top: 14px; border-top: 1px solid var(--border); }
+.reroute-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
+.reroute-copy { margin: 3px 0 0; color: var(--muted); font-size: 0.72rem; }
 .sim-status { padding: 4px 8px; border: 1px solid var(--border-strong); border-radius: 999px; color: var(--muted); font-size: 0.65rem; font-weight: 750; letter-spacing: 0.04em; text-transform: uppercase; }
 .simulation-route-row { justify-content: space-between; gap: 8px; margin-bottom: 14px; color: var(--muted); font-size: 0.75rem; }
 .simulation-route-row strong { color: var(--text); }
@@ -425,10 +430,12 @@ summary { cursor: pointer; color: var(--text); font-size: 0.82rem; }
 .map-notices { position: absolute; z-index: 700; right: 16px; left: 16px; bottom: 100px; display: grid; gap: 6px; pointer-events: none; }
 .map-notices .tile-error, .map-notices .map-source-note { position: static; pointer-events: auto; font-size: 0.72rem; }
 .legend-selected { background: var(--emergency); }
+.legend-reroute { background: var(--caution); }
 .legend-hospital { font-style: normal; font-weight: 800; color: var(--alternative); }
 .legend-signal { display: inline-block; width: 9px; height: 9px; border: 1px solid var(--caution); border-radius: 3px; background: var(--caution); }
 .legend-radius { height: 0; border-top: 1px dashed var(--alternative); background: transparent; }
 .legend-ambulance { width: 10px; height: 10px; background: var(--emergency); border: 2px solid #dff; border-radius: 50%; outline: 1px solid var(--emergency); }
+.marker-reroute { background: var(--caution); color: var(--background); box-shadow: 0 0 0 4px rgba(227, 173, 83, 0.18), 0 3px 12px rgba(0, 0, 0, 0.32); }
 .section-note, .field-label, .disclosure-text, .hospital-option small, .route-metrics small, .recommendation-metrics span, .simulation-metrics span, .history-item p { font-size: 0.78rem; }
 .hospital-option strong, .history-item strong, .button { font-size: 0.82rem; }
 .progress-label { font-size: 0.8rem; }
